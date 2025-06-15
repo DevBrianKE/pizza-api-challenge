@@ -1,4 +1,5 @@
 from server.app import db
+from sqlalchemy.orm import validates
 
 class RestaurantPizza(db.Model):
     __tablename__ = 'restaurant_pizzas'
@@ -6,9 +7,14 @@ class RestaurantPizza(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     price = db.Column(db.Integer, nullable=False)
 
-    restaurant_id = db.Column(db.Integer, db.ForeignKey("restaurants.id"), nullable=False)
-    pizza_id = db.Column(db.Integer, db.ForeignKey("pizzas.id"), nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'), nullable=False)
+    pizza_id = db.Column(db.Integer, db.ForeignKey('pizzas.id'), nullable=False)
 
-    # Basic validation rule
-    def is_valid_price(self):
-        return 1 <= self.price <= 30
+    restaurant = db.relationship('Restaurant', back_populates='pizzas')
+    pizza = db.relationship('Pizza', back_populates='restaurants')
+
+    @validates('price')
+    def validate_price(self, key, value):
+        if not (1 <= value <= 30):
+            raise ValueError("Price must be between 1 and 30")
+        return value
