@@ -246,7 +246,9 @@ pizza-api-challenge/
 ├── migrations/                 # Flask-Migrate scripts
 ├── challenge-1-pizzas.postman_collection.json
 └── README.md
-## 👨‍💻 Author
+```
+
+##  Author
 
 **Kipchumba Brian**
 
