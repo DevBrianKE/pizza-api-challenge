@@ -1,30 +1,67 @@
-from server.app import app, db
+from server.app import create_app, db
 from server.models.restaurant import Restaurant
 from server.models.pizza import Pizza
 from server.models.restaurant_pizza import RestaurantPizza
+from random import randint, choice
 
-with app.app_context():
-    print("Dropping and creating tables...")
-    db.drop_all()
-    db.create_all()
+#  Create the app using the factory
+app = create_app()
 
-    print("Seeding restaurants...")
-    r1 = Restaurant(name="Kiki's Pizza", address="123 Main St")
-    r2 = Restaurant(name="Luigi's Pizzeria", address="456 Elm St")
+def seed_data():
+    with app.app_context():
+        print(" Dropping and recreating tables...")
+        db.drop_all()
+        db.create_all()
 
-    print("Seeding pizzas...")
-    p1 = Pizza(name="Margherita", ingredients="Dough, Tomato Sauce, Cheese")
-    p2 = Pizza(name="Pepperoni", ingredients="Dough, Tomato Sauce, Cheese, Pepperoni")
+        print(" Seeding restaurants...")
+        restaurant_names = [
+            "Kiki's Pizza", "Luigi's Pizzeria", "Mama Mia's", "Cheese Crust Co.",
+            "NY Pie Slice", "The Oven House", "Golden Crust", "Thin & Crispy",
+            "Brick Oven", "Deep Dish Palace"
+        ]
+        restaurant_addresses = [
+            "123 Main St", "456 Elm St", "789 Oak Ave", "321 Pine Rd",
+            "654 Maple Ln", "987 Cedar Blvd", "159 Walnut Way", "753 Cherry St",
+            "852 Birch Pl", "951 Spruce Ct"
+        ]
 
-    db.session.add_all([r1, r2, p1, p2])
-    db.session.commit()
+        restaurants = [
+            Restaurant(name=name, address=address)
+            for name, address in zip(restaurant_names, restaurant_addresses)
+        ]
+        db.session.add_all(restaurants)
 
-    print("Seeding restaurant pizzas...")
-    rp1 = RestaurantPizza(price=10, restaurant=r1, pizza=p1)
-    rp2 = RestaurantPizza(price=12, restaurant=r1, pizza=p2)
-    rp3 = RestaurantPizza(price=11, restaurant=r2, pizza=p2)
+        print(" Seeding pizzas...")
+        pizza_data = [
+            ("Margherita", "Dough, Tomato Sauce, Cheese"),
+            ("Pepperoni", "Dough, Tomato Sauce, Cheese, Pepperoni"),
+            ("BBQ Chicken", "Dough, BBQ Sauce, Chicken, Onions"),
+            ("Veggie Deluxe", "Dough, Tomato Sauce, Peppers, Mushrooms"),
+            ("Hawaiian", "Dough, Tomato Sauce, Ham, Pineapple"),
+            ("Four Cheese", "Dough, Tomato Sauce, Mozzarella, Cheddar, Parmesan, Feta"),
+            ("Meat Lovers", "Dough, Tomato Sauce, Sausage, Bacon, Ham"),
+            ("Mushroom Feast", "Dough, Tomato Sauce, Mushrooms, Truffle Oil"),
+            ("Spinach Alfredo", "Dough, Alfredo Sauce, Spinach, Garlic"),
+            ("Buffalo Chicken", "Dough, Buffalo Sauce, Chicken, Ranch")
+        ]
 
-    db.session.add_all([rp1, rp2, rp3])
-    db.session.commit()
+        pizzas = [Pizza(name=name, ingredients=ingredients) for name, ingredients in pizza_data]
+        db.session.add_all(pizzas)
+        db.session.commit()
 
-    print("✅ Seed data created successfully.")
+        print(" Creating restaurant-pizza associations...")
+        restaurant_pizzas = []
+        for _ in range(25):  # Create 25 random associations
+            restaurant = choice(restaurants)
+            pizza = choice(pizzas)
+            price = randint(8, 30)  # price between 8 and 30
+            restaurant_pizzas.append(RestaurantPizza(price=price, restaurant=restaurant, pizza=pizza))
+
+        db.session.add_all(restaurant_pizzas)
+        db.session.commit()
+
+        print("Database seeded successfully with 10 restaurants, 10 pizzas, and 25 links.")
+
+if __name__ == "__main__":
+    seed_data()
+    

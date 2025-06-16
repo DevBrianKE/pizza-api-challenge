@@ -179,7 +179,7 @@ GET /restaurants/1
 **Response:**
 ```
 {
-  "message": "Restaurant deleted successfully."
+    "message": "Restaurant 'Mama Mia's' with ID 2 has been deleted successfully."
 }
 
 ```
